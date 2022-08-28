@@ -49,6 +49,7 @@ export class SuperClusterAlgorithm extends AbstractAlgorithm {
 
     this.state = { zoom: null };
   }
+
   public calculate(input: AlgorithmInput): AlgorithmOutput {
     let changed = false;
 
@@ -95,8 +96,18 @@ export class SuperClusterAlgorithm extends AbstractAlgorithm {
 
   public cluster({ map }: AlgorithmInput): Cluster[] {
     return this.superCluster
-      .getClusters([-180, -90, 180, 90], Math.round(map.getZoom()))
+      .getClusters(this.getBoundingBox(map), Math.round(map.getZoom()))
       .map(this.transformCluster.bind(this));
+  }
+
+  protected getBoundingBox(map: google.maps.Map): [number, number, number, number] {
+    const bounds = map.getBounds();
+    return [
+      bounds.getSouthWest().lng(),
+      bounds.getSouthWest().lat(),
+      bounds.getNorthEast().lng(),
+      bounds.getNorthEast().lat(),
+    ];
   }
 
   protected transformCluster({
